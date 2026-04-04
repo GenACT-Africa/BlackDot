@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 // ─── Payment Details ───────────────────────────────────────────
 // TODO: Replace placeholders with your real payment details
 const MPESA_LIPA_NUMBER = process.env.MPESA_LIPA_NUMBER || 'XXXXXX'
@@ -13,8 +11,24 @@ const BANK_SWIFT        = process.env.BANK_SWIFT_CODE || 'XXXXX'
 const APP_URL           = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 // ──────────────────────────────────────────────────────────────
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(req: NextRequest) {
   try {
+
+    const apiKey = process.env.RESEND_API_KEY
+
+    if (!apiKey) {
+      console.error('Missing RESEND_API_KEY')
+      return NextResponse.json(
+        { error: 'Server misconfiguration' },
+        { status: 500 }
+      )
+    }
+
+    const resend = new Resend(apiKey)
+
+
     const {
       bookingRef,
       bookingId,
