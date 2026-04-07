@@ -28,34 +28,32 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
-      <Link href={`/book?service=${service.slug}`} className="group block h-full" suppressHydrationWarning>
-        <div className="glass rounded-2xl p-6 h-full border border-white/8 hover:border-purple-500/30 transition-all duration-300 hover:shadow-glow-purple-sm">
-          {/* Icon */}
-          <div className="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 mb-5 group-hover:bg-purple-500/25 transition-colors">
-            {ICONS[service.icon || 'Mic']}
+      <div className="group relative flex flex-col h-full glass rounded-2xl p-6 border border-white/8 hover:border-purple-500/30 transition-all duration-300 hover:shadow-glow-purple-sm">
+        <Link href={`/book?service=${service.slug}`} className="absolute inset-0 rounded-2xl z-10" aria-label={`Book ${service.name}`} />
+        {/* Icon */}
+        <div className="w-12 h-12 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 mb-5 group-hover:bg-purple-500/25 transition-colors">
+          {ICONS[service.icon || 'Mic']}
+        </div>
+
+        {/* Service info */}
+        <div className="mb-4">
+          <h3 className="text-lg font-bold text-white mb-2">{service.name}</h3>
+          <p className="text-sm text-white/50 leading-relaxed">{service.description}</p>
+        </div>
+
+        {/* Price & CTA */}
+        <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/8">
+          <div>
+            <span className="text-2xl font-black gradient-text">
+              {formatTZS(service.price_tzs)}
+            </span>
+            <span className="text-xs text-white/40 ml-1">{billingLabel}</span>
           </div>
-
-          {/* Service info */}
-          <div className="mb-4">
-
-            <h3 className="text-lg font-bold text-white mb-2">{service.name}</h3>
-            <p className="text-sm text-white/50 leading-relaxed">{service.description}</p>
-          </div>
-
-          {/* Price & CTA */}
-          <div className="flex items-end justify-between mt-auto pt-4 border-t border-white/8">
-            <div>
-              <span className="text-2xl font-black gradient-text">
-                {formatTZS(service.price_tzs)}
-              </span>
-              <span className="text-xs text-white/40 ml-1">{billingLabel}</span>
-            </div>
-            <div className="flex items-center gap-1 text-sm font-medium text-purple-400 group-hover:gap-2 transition-all">
-              Book <ArrowRight size={14} />
-            </div>
+          <div className="flex items-center gap-1 text-sm font-medium text-purple-400 group-hover:gap-2 transition-all">
+            Book <ArrowRight size={14} />
           </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   )
 }

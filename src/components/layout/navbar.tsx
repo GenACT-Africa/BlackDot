@@ -43,9 +43,9 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group" suppressHydrationWarning>
-            <div className="w-16 h-16 rounded-lg bg-purple-600/20 flex items-center justify-center shadow-glow-purple-sm transition-all group-hover:shadow-glow-purple">
-              <div className="w-16 h-16 relative">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <span className="w-16 h-16 rounded-lg bg-purple-600/20 inline-flex items-center justify-center shadow-glow-purple-sm transition-all group-hover:shadow-glow-purple">
+              <span className="w-16 h-16 relative inline-block">
                 <Image
                   src="/blackdot-logo.png"
                   alt="BlackDot Music Logo"
@@ -53,8 +53,8 @@ export function Navbar() {
                   className="object-contain"
                   priority
                 />
-              </div>
-            </div>
+              </span>
+            </span>
             <span className="font-bold text-base tracking-tight leading-tight">
               <span className="text-white block">Digital</span>
               <span className="text-purple-400 block"> Studio</span>

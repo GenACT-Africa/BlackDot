@@ -55,70 +55,68 @@ function TalentCard({ talent, index }: { talent: Talent; index: number }) {
       viewport={{ once: true }}
       transition={{ delay: index * 0.12, duration: 0.5 }}
     >
-      <Link href={`/talents/${talent.slug}`} className="group block" suppressHydrationWarning>
-        <div className="glass rounded-2xl overflow-hidden border border-white/8 hover:border-purple-500/30 transition-all duration-300 hover:shadow-glow-purple-sm">
-          {/* Avatar */}
-          <div className={`relative h-52 bg-gradient-to-br ${gradients[index % 3]} overflow-hidden`}>
-            {talent.avatar_url ? (
-              <Image
-                src={talent.avatar_url}
-                alt={talent.name}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-5xl font-black text-white/20">{initials}</span>
-              </div>
-            )}
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            {/* Roles */}
-            <div className="absolute bottom-3 left-4 flex flex-wrap gap-1">
-              {talent.roles.slice(0, 2).map((role) => (
-                <span
-                  key={role}
-                  className="text-[10px] font-semibold text-white/90 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full"
-                >
-                  {role}
-                </span>
-              ))}
+      <div className="group relative glass rounded-2xl overflow-hidden border border-white/8 hover:border-purple-500/30 transition-all duration-300 hover:shadow-glow-purple-sm">
+        <Link href={`/talents/${talent.slug}`} className="absolute inset-0 z-10" aria-label={`View ${talent.name}'s profile`} />
+        {/* Avatar */}
+        <div className={`relative h-52 bg-gradient-to-br ${gradients[index % 3]} overflow-hidden`}>
+          {talent.avatar_url ? (
+            <Image
+              src={talent.avatar_url}
+              alt={talent.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-5xl font-black text-white/20">{initials}</span>
             </div>
-          </div>
-
-          {/* Info */}
-          <div className="p-5">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">
-                {talent.name}
-              </h3>
-              {talent.instagram_url && (
-                <a
-                  href={talent.instagram_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-white/30 hover:text-purple-400 transition-colors"
-                >
-                  <Instagram size={14} />
-                </a>
-              )}
-            </div>
-            <p className="text-xs text-white/50 line-clamp-2 mb-3">{talent.bio}</p>
-            {/* Genres */}
-            <div className="flex flex-wrap gap-1">
-              {talent.genres.slice(0, 3).map((genre) => (
-                <span
-                  key={genre}
-                  className="text-[10px] text-purple-400/80 bg-purple-500/10 px-2 py-0.5 rounded-full"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
+          )}
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          {/* Roles */}
+          <div className="absolute bottom-3 left-4 flex flex-wrap gap-1">
+            {talent.roles.slice(0, 2).map((role) => (
+              <span
+                key={role}
+                className="text-[10px] font-semibold text-white/90 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full"
+              >
+                {role}
+              </span>
+            ))}
           </div>
         </div>
-      </Link>
+
+        {/* Info */}
+        <div className="p-5">
+          <div className="flex items-start justify-between mb-2">
+            <h3 className="text-base font-bold text-white group-hover:text-purple-300 transition-colors">
+              {talent.name}
+            </h3>
+            {talent.instagram_url && (
+              <a
+                href={talent.instagram_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative z-20 text-white/30 hover:text-purple-400 transition-colors"
+              >
+                <Instagram size={14} />
+              </a>
+            )}
+          </div>
+          <p className="text-xs text-white/50 line-clamp-2 mb-3">{talent.bio}</p>
+          {/* Genres */}
+          <div className="flex flex-wrap gap-1">
+            {talent.genres.slice(0, 3).map((genre) => (
+              <span
+                key={genre}
+                className="text-[10px] text-purple-400/80 bg-purple-500/10 px-2 py-0.5 rounded-full"
+              >
+                {genre}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </motion.div>
   )
 }
