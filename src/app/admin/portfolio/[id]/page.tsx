@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Globe, GlobeOff, Music2, Youtube, Check } from 'lucide-react'
+import { ArrowLeft, Globe, EyeOff, Music2, Youtube, Check } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { Input } from '@/components/ui/input'
@@ -124,7 +124,7 @@ export default function EditPortfolioEntryPage() {
             ? 'bg-green-500/10 border-green-500/20 text-green-400'
             : 'bg-white/5 border-white/10 text-white/40'
         }`}>
-          {isPublic ? <Globe size={12} /> : <GlobeOff size={12} />}
+          {isPublic ? <Globe size={12} /> : <EyeOff size={12} />}
           {isPublic ? 'Live on /projects' : 'Not published'}
         </div>
       </div>
