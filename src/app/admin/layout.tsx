@@ -20,14 +20,14 @@ export default async function AdminLayout({
 
   if (profile?.role !== 'admin') redirect('/dashboard')
 
-  const { count: pendingPayments } = await supabase
-    .from('payments')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'processing')
+  const [{ count: pendingPayments }, { count: unreadMessages }] = await Promise.all([
+    supabase.from('payments').select('*', { count: 'exact', head: true }).eq('status', 'processing'),
+    supabase.from('contact_inquiries').select('*', { count: 'exact', head: true }).eq('read', false).eq('archived', false),
+  ])
 
   return (
     <div className="flex h-screen overflow-hidden bg-brand-black">
-      <AdminSidebar pendingPayments={pendingPayments || 0} />
+      <AdminSidebar pendingPayments={pendingPayments || 0} unreadMessages={unreadMessages || 0} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <main className="flex-1 overflow-y-auto p-6 lg:p-8">
           {children}

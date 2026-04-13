@@ -3,8 +3,9 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Mic, Globe, Music, SlidersHorizontal, Check } from 'lucide-react'
+import { Mic, Globe, Music, SlidersHorizontal, Check, ArrowRight } from 'lucide-react'
 import { useBooking } from '@/lib/hooks/use-booking'
+import { Button } from '@/components/ui/button'
 import { formatTZS } from '@/lib/utils/currency'
 import { createClient } from '@/lib/supabase/client'
 import type { Service } from '@/types'
@@ -22,7 +23,7 @@ function BookStep1Content() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselect = searchParams.get('service')
-  const { state, setService } = useBooking()
+  const { state, toggleService, proceedFromServices, hydrated } = useBooking()
   const [services, setServices] = useState<Service[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
 
@@ -34,14 +35,25 @@ function BookStep1Content() {
         .select('*')
         .eq('is_active', true)
         .order('display_order')
-      if (data) setServices(data)
+      if (data) {
+        setServices(data)
+        // Auto-select preselect param if no services chosen yet
+        if (preselect && hydrated && state.services.length === 0) {
+          const match = data.find((s: Service) => s.slug === preselect)
+          if (match) toggleService(match)
+        }
+      }
       setLoadingServices(false)
     }
     fetchServices()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated])
 
-  const handleSelect = (service: Service) => {
-    setService(service)
+  const isSelected = (service: Service) =>
+    state.services.some(s => s.service.id === service.id)
+
+  const handleContinue = () => {
+    proceedFromServices()
     router.push('/book/details')
   }
 
@@ -56,16 +68,14 @@ function BookStep1Content() {
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border ${
                   i === 0
                     ? 'bg-purple-600 border-purple-600 text-white'
-                    : i < 0
-                    ? 'bg-purple-600/20 border-purple-500/30 text-purple-400'
                     : 'border-white/20 text-white/30'
                 }`}>
-                  {i < 0 ? <Check size={12} /> : i + 1}
+                  {i + 1}
                 </div>
                 <span className="text-xs font-medium hidden sm:block">{step}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className={`flex-1 h-px mx-3 ${i < 0 ? 'bg-purple-500/40' : 'bg-white/10'}`} />
+                <div className={`flex-1 h-px mx-3 bg-white/10`} />
               )}
             </div>
           ))}
@@ -78,19 +88,19 @@ function BookStep1Content() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-black text-white mb-2">Choose a Service</h1>
-        <p className="text-white/50">Select the service that best fits your project.</p>
+        <h1 className="text-3xl font-black text-white mb-2">Choose Your Services</h1>
+        <p className="text-white/50">Select all the services you need — you can combine multiple.</p>
       </motion.div>
 
       {/* Service cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         {loadingServices ? (
           <div className="col-span-2 h-40 flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
           </div>
         ) : null}
         {services.map((service, i) => {
-          const isSelected = state.service?.id === service.id || preselect === service.slug
+          const selected = isSelected(service)
           const billingLabel = { hour: '/ hr', track: '/ track', project: '/ project' }[service.billing_unit]
 
           return (
@@ -99,27 +109,29 @@ function BookStep1Content() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              onClick={() => handleSelect(service)}
+              onClick={() => toggleService(service)}
               className={`text-left glass rounded-2xl p-6 border transition-all duration-200 w-full group ${
-                isSelected
+                selected
                   ? 'border-purple-500/50 shadow-glow-purple-sm bg-purple-500/5'
                   : 'border-white/8 hover:border-purple-500/30 hover:shadow-glow-purple-sm'
               }`}
             >
               {/* Icon */}
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-colors ${
-                isSelected ? 'bg-purple-500/30 text-purple-300' : 'bg-purple-500/15 text-purple-400 group-hover:bg-purple-500/25'
+                selected ? 'bg-purple-500/30 text-purple-300' : 'bg-purple-500/15 text-purple-400 group-hover:bg-purple-500/25'
               }`}>
                 {ICONS[service.icon || 'Mic']}
               </div>
 
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-sm font-bold text-white">{service.name}</h3>
-                {isSelected && (
-                  <div className="w-5 h-5 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0">
-                    <Check size={10} className="text-white" />
-                  </div>
-                )}
+                <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-all ${
+                  selected
+                    ? 'bg-purple-600 border-purple-600'
+                    : 'border-white/20 bg-transparent'
+                }`}>
+                  {selected && <Check size={10} className="text-white" />}
+                </div>
               </div>
               <p className="text-xs text-white/50 mb-4 leading-relaxed">{service.description}</p>
 
@@ -131,6 +143,29 @@ function BookStep1Content() {
           )
         })}
       </div>
+
+      {/* Selected count + Continue */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center gap-3"
+      >
+        {state.services.length > 0 && (
+          <span className="text-xs text-white/40">
+            {state.services.length} service{state.services.length > 1 ? 's' : ''} selected
+          </span>
+        )}
+        <Button
+          onClick={handleContinue}
+          disabled={state.services.length === 0}
+          glow
+          className="flex-1 group"
+        >
+          Continue
+          <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        </Button>
+      </motion.div>
     </div>
   )
 }

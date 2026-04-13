@@ -1,0 +1,211 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { ArrowLeft, Youtube, Music2, Check } from 'lucide-react'
+import Link from 'next/link'
+import toast from 'react-hot-toast'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/client'
+
+const schema = z.object({
+  title: z.string().min(2, 'Title required'),
+  artist_name: z.string().optional(),
+  genre: z.string().optional(),
+  video_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  stream_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  is_public: z.boolean(),
+})
+
+type FormData = z.infer<typeof schema>
+
+export default function NewPortfolioEntryPage() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [loading, setLoading] = useState(false)
+  const [talents, setTalents] = useState<{ id: string; name: string }[]>([])
+  const [selectedTalents, setSelectedTalents] = useState<string[]>([])
+
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { is_public: true },
+  })
+
+  useEffect(() => {
+    supabase
+      .from('talents')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('display_order')
+      .then(({ data }) => setTalents(data || []))
+  }, [supabase])
+
+  const toggleTalent = (name: string) => {
+    setSelectedTalents(prev =>
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    )
+  }
+
+  const onSubmit = async (data: FormData) => {
+    setLoading(true)
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { toast.error('Not authenticated'); return }
+
+      const mediaUrl = data.video_url || data.stream_url || null
+      const primaryTalentId = selectedTalents.length > 0
+        ? (talents.find(t => t.name === selectedTalents[0])?.id ?? null)
+        : null
+
+      const slug = data.title
+        .toLowerCase().trim()
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+        + '-' + Date.now().toString(36)
+
+      const { error } = await supabase.from('projects').insert({
+        title: data.title,
+        description: data.artist_name || null,   // artist name stored here
+        genre: data.genre || null,
+        key_signature: selectedTalents.join(', ') || null, // producer names stored here
+        talent_id: primaryTalentId,
+        client_id: user.id,
+        cover_art_url: mediaUrl,
+        is_public: data.is_public,
+        public_slug: slug,
+        status: 'delivered',
+        progress_pct: 100,
+        delivered_at: new Date().toISOString(),
+      })
+
+      if (error) throw error
+      toast.success('Portfolio entry added!')
+      router.push('/admin/portfolio')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div>
+      <Link href="/admin/portfolio" className="inline-flex items-center gap-1.5 text-sm text-white/50 hover:text-white transition-colors mb-6">
+        <ArrowLeft size={14} /> Portfolio
+      </Link>
+
+      <h1 className="text-2xl font-black text-white mb-8">Add Portfolio Entry</h1>
+
+      <div className="max-w-2xl">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+          {/* Media Link */}
+          <div className="glass rounded-2xl p-6 space-y-4">
+            <div>
+              <h2 className="text-sm font-bold text-white/70 mb-1">Media Link</h2>
+              <p className="text-xs text-white/30">YouTube thumbnail is used as the cover on the portfolio page.</p>
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-xs font-medium text-white/60 mb-1.5">
+                <Youtube size={13} className="text-red-400" />
+                YouTube Link <span className="text-purple-400">(preferred)</span>
+              </label>
+              <Input placeholder="https://www.youtube.com/watch?v=..." error={errors.video_url?.message} {...register('video_url')} />
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-white/8" />
+              <span className="text-xs text-white/25">or</span>
+              <div className="flex-1 h-px bg-white/8" />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-xs font-medium text-white/60 mb-1.5">
+                <Music2 size={13} className="text-green-400" />
+                Streaming Link
+              </label>
+              <Input placeholder="Spotify, SoundCloud, Apple Music, Audiomack…" error={errors.stream_url?.message} {...register('stream_url')} />
+            </div>
+          </div>
+
+          {/* Track Info */}
+          <div className="glass rounded-2xl p-6 space-y-4">
+            <h2 className="text-sm font-bold text-white/70 mb-2">Track Info</h2>
+            <Input
+              label="Title"
+              placeholder="e.g. Bongo Flava Anthem"
+              error={errors.title?.message}
+              {...register('title')}
+            />
+            <Input
+              label="Artist Name"
+              placeholder="e.g. Sauti Sol, Harmonize…"
+              {...register('artist_name')}
+            />
+            <Input
+              label="Genre"
+              placeholder="Afrobeats, Bongo Flava…"
+              {...register('genre')}
+            />
+          </div>
+
+          {/* Producer / Engineer — multi-select */}
+          <div className="glass rounded-2xl p-6">
+            <div className="mb-4">
+              <h2 className="text-sm font-bold text-white/70">Producer / Engineer</h2>
+              <p className="text-xs text-white/30 mt-0.5">Select all who contributed to this project.</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {talents.map((t) => {
+                const checked = selectedTalents.includes(t.name)
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => toggleTalent(t.name)}
+                    className={`glass rounded-xl p-3 text-left border transition-all relative ${
+                      checked ? 'border-purple-500/50 bg-purple-500/5' : 'border-white/8 hover:border-purple-500/20'
+                    }`}
+                  >
+                    {checked && (
+                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-purple-600 flex items-center justify-center">
+                        <Check size={9} className="text-white" />
+                      </div>
+                    )}
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-1.5">
+                      <span className="text-xs font-bold text-white">{t.name[0]}</span>
+                    </div>
+                    <p className="text-xs font-medium text-white pr-4">{t.name}</p>
+                  </button>
+                )
+              })}
+            </div>
+            {selectedTalents.length > 0 && (
+              <p className="text-xs text-purple-400/70 mt-3">
+                Selected: {selectedTalents.join(', ')}
+              </p>
+            )}
+          </div>
+
+          {/* Visibility */}
+          <div className="glass rounded-2xl p-6">
+            <h2 className="text-sm font-bold text-white/70 mb-3">Visibility</h2>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" className="w-4 h-4 accent-purple-600" {...register('is_public')} />
+              <div>
+                <span className="text-sm text-white block">Publish immediately</span>
+                <span className="text-xs text-white/40">Shows on the public /projects page</span>
+              </div>
+            </label>
+          </div>
+
+          <div className="flex gap-3">
+            <Link href="/admin/portfolio"><Button variant="secondary">Cancel</Button></Link>
+            <Button type="submit" loading={loading} glow className="flex-1">Add to Portfolio</Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

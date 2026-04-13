@@ -3,12 +3,12 @@ import { Resend } from 'resend'
 
 // ─── Payment Details ───────────────────────────────────────────
 // TODO: Replace placeholders with your real payment details
-const MPESA_LIPA_NUMBER = process.env.MPESA_LIPA_NUMBER || 'XXXXXX'
+const MPESA_LIPA_NUMBER = process.env.MPESA_LIPA_NUMBER || 'CONTACT US FOR DETAILS'
 const BANK_NAME         = 'Equity Bank'
 const BANK_ACC_NAME     = 'BlackDot Music'
-const BANK_ACC_NUMBER   = process.env.BANK_ACC_NUMBER || 'XXXXXXXXXXXX'
-const BANK_SWIFT        = process.env.BANK_SWIFT_CODE || 'XXXXX'
-const APP_URL           = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+const BANK_ACC_NUMBER   = process.env.BANK_ACC_NUMBER || 'CONTACT US FOR DETAILS'
+const BANK_SWIFT        = process.env.BANK_SWIFT_CODE || 'CONTACT US FOR DETAILS'
+const APP_URL           = process.env.NEXT_PUBLIC_APP_URL || 'http://theblackdotmusic.com'
 // ──────────────────────────────────────────────────────────────
 
 export const dynamic = 'force-dynamic'
@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
     const confirmPaymentUrl = `${APP_URL}/dashboard/payments/confirm?ref=${bookingRef}&booking_id=${bookingId}`
 
     const { error } = await resend.emails.send({
-      from: 'BlackDot Music <onboarding@resend.dev>',
-      to: 'admin@genactafrica.org', // temporary: Resend testing only allows sending to account email
+      from: 'BlackDot Music <bookings@theblackdotmusic.com>',
+      to: clientEmail,
       subject: `Booking Confirmed – ${bookingRef} | Payment Required`,
       html: `
         <!DOCTYPE html>

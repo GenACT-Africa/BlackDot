@@ -2,16 +2,17 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { ButtonLink } from '@/components/ui/button-link'
 import Image from 'next/image'
+import { createClient } from '@/lib/supabase/client'
 
 const navLinks = [
   { label: 'About', href: '/about' },
   { label: 'Services', href: '/services' },
-  { label: 'Projects', href: '/projects' },  
+  { label: 'Portfolio', href: '/projects' },
   { label: 'Talents', href: '/talents' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -19,7 +20,11 @@ const navLinks = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [dashboardHref, setDashboardHref] = useState('/dashboard')
+
   const pathname = usePathname()
+  const supabase = createClient()
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -30,6 +35,59 @@ export function Navbar() {
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
+
+  // Auth state + admin check
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser()
+      const user = data.user
+
+      if (!user) {
+        setIsLoggedIn(false)
+        setDashboardHref('/dashboard')
+        return
+      }
+
+      setIsLoggedIn(true)
+
+      // Check user_metadata first (fast, no DB call)
+      if (user.user_metadata?.role === 'admin') {
+        setDashboardHref('/admin')
+        return
+      }
+
+      // Fallback: check profiles table
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      setDashboardHref(profile?.role === 'admin' ? '/admin' : '/dashboard')
+    }
+
+    getUser()
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session?.user) {
+          setIsLoggedIn(false)
+          setDashboardHref('/dashboard')
+        } else {
+          setIsLoggedIn(true)
+          getUser()
+        }
+      }
+    )
+
+    return () => {
+      listener.subscription.unsubscribe()
+    }
+  }, [supabase])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+  }
 
   return (
     <>
@@ -42,6 +100,7 @@ export function Navbar() {
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+
           {/* Logo */}
           <Link href="/" className="inline-flex items-center gap-2.5 group">
             <span className="w-16 h-16 rounded-lg bg-purple-600/20 inline-flex items-center justify-center shadow-glow-purple-sm transition-all group-hover:shadow-glow-purple">
@@ -81,12 +140,28 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <ButtonLink href="/login" variant="ghost" size="sm">
-              Log in
-            </ButtonLink>
-            <ButtonLink href="/book" size="sm" glow>
-              Book a Session
-            </ButtonLink>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="text-sm font-medium text-white/80 hover:text-white px-4 py-2"
+              >
+                Log out
+              </button>
+            ) : (
+              <ButtonLink href="/login" variant="ghost" size="sm">
+                Log in
+              </ButtonLink>
+            )}
+
+            {isLoggedIn ? (
+              <ButtonLink href={dashboardHref} size="sm" glow>
+                Dashboard
+              </ButtonLink>
+            ) : (
+              <ButtonLink href="/book" size="sm" glow>
+                Book a Session
+              </ButtonLink>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -107,6 +182,7 @@ export function Navbar() {
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative bg-brand-black-2 border-b border-white/10 px-4 pt-4 pb-6">
+
             <div className="flex flex-col gap-1 mb-6">
               {navLinks.map((link) => (
                 <Link
@@ -123,14 +199,32 @@ export function Navbar() {
                 </Link>
               ))}
             </div>
+
             <div className="flex flex-col gap-3">
-              <ButtonLink href="/login" variant="secondary" className="w-full">
-                Log in
-              </ButtonLink>
-              <ButtonLink href="/book" className="w-full" glow>
-                Book a Session
-              </ButtonLink>
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="w-full px-4 py-3 rounded-lg bg-white/10 text-white font-medium"
+                >
+                  Log out
+                </button>
+              ) : (
+                <ButtonLink href="/login" variant="secondary" className="w-full">
+                  Log in
+                </ButtonLink>
+              )}
+
+              {isLoggedIn ? (
+                <ButtonLink href={dashboardHref} className="w-full" glow>
+                  Dashboard
+                </ButtonLink>
+              ) : (
+                <ButtonLink href="/book" className="w-full" glow>
+                  Book a Session
+                </ButtonLink>
+              )}
             </div>
+
           </div>
         </div>
       )}

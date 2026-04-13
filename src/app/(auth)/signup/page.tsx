@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Lock, Mail, User } from 'lucide-react'
+import { Lock, Mail, User, CheckCircle2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -27,6 +27,7 @@ type FormData = z.infer<typeof schema>
 export default function SignupPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [confirmedEmail, setConfirmedEmail] = useState<string | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -35,7 +36,7 @@ export default function SignupPage() {
   const onSubmit = async ({ full_name, email, password }: FormData) => {
     setLoading(true)
     const supabase = createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { full_name } },
@@ -45,9 +46,36 @@ export default function SignupPage() {
       setLoading(false)
       return
     }
-    toast.success('Account created! Welcome to BlackDot.')
-    router.push('/dashboard')
-    router.refresh()
+    // If session exists, email confirmation is disabled — go straight to dashboard
+    if (data.session) {
+      router.push('/dashboard')
+      router.refresh()
+      return
+    }
+    // Email confirmation required — show check-your-email screen
+    setConfirmedEmail(email)
+    setLoading(false)
+  }
+
+  if (confirmedEmail) {
+    return (
+      <div className="w-full max-w-sm text-center">
+        <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle2 size={32} className="text-green-400" />
+        </div>
+        <h1 className="text-2xl font-black text-white mb-3">Check your email</h1>
+        <p className="text-white/50 text-sm mb-2">
+          We sent a confirmation link to
+        </p>
+        <p className="text-purple-300 font-semibold text-sm mb-6">{confirmedEmail}</p>
+        <p className="text-white/30 text-xs mb-8 leading-relaxed">
+          Click the link in the email to activate your account. Check your spam folder if you don&apos;t see it.
+        </p>
+        <Link href="/login" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
+          Back to login →
+        </Link>
+      </div>
+    )
   }
 
   return (

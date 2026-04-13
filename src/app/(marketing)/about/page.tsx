@@ -75,11 +75,10 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-purple-400 mb-4">Mission</p>
           <h2 className="text-4xl font-black text-white mb-6">
-            We&apos;re Not Competing With Studios in Dar.
+            Bridging the gap between global quality and local accessibility.
           </h2>
           <p className="text-xl text-white/60 leading-relaxed">
-            We&apos;re competing with studios in London, online engineers on Fiverr, and global
-            beat marketplaces. Our standard is global — and our price is accessible.
+            We operate with a global benchmark, while ensuring our services remain within reach for emerging and established artists alike.
           </p>
         </div>
       </div>

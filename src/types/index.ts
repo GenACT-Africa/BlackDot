@@ -201,9 +201,14 @@ export interface ContactInquiry {
 }
 
 // ── Booking Flow State ────────────────────────────────────────
+export interface SelectedService {
+  service: Service
+  quantity: number // tracks/projects for non-hourly billing; ignored for hourly (uses durationHours)
+}
+
 export interface BookingFormState {
   step: 1 | 2 | 3 | 4
-  service: Service | null
+  services: SelectedService[]
   talentId: string | null
   projectTitle: string
   projectNotes: string

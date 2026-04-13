@@ -41,8 +41,8 @@ export default function BookStep2() {
   }, [])
 
   useEffect(() => {
-    if (hydrated && !state.service) router.replace('/book')
-  }, [hydrated, state.service, router])
+    if (hydrated && state.services.length === 0) router.replace('/book')
+  }, [hydrated, state.services.length, router])
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -98,10 +98,14 @@ export default function BookStep2() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Service reminder */}
-          {state.service && (
-            <div className="glass-purple rounded-xl p-4 flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-purple-400" />
-              <span className="text-sm text-purple-300 font-medium">{state.service.name}</span>
+          {state.services.length > 0 && (
+            <div className="glass-purple rounded-xl p-4 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+              {state.services.map(({ service }) => (
+                <div key={service.id} className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-400 flex-shrink-0" />
+                  <span className="text-sm text-purple-300 font-medium">{service.name}</span>
+                </div>
+              ))}
             </div>
           )}
 

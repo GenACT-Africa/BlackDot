@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Check, Clock, Minus, Plus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Clock, Minus, Plus, Music, SlidersHorizontal } from 'lucide-react'
 import { format, addDays, isBefore, startOfDay } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { useBooking } from '@/lib/hooks/use-booking'
@@ -23,25 +23,40 @@ export default function BookStep3() {
   const [selectedTime, setSelectedTime] = useState<string | null>(state.startTime)
   const [duration, setDuration] = useState(state.durationHours || 1)
 
+  // Per-service quantities for track/project billed services
+  const [quantities, setQuantities] = useState<Record<string, number>>(() => {
+    const init: Record<string, number> = {}
+    state.services.forEach(s => { init[s.service.id] = s.quantity })
+    return init
+  })
+
   useEffect(() => {
-    if (hydrated && !state.service) router.replace('/book')
-  }, [hydrated, state.service, router])
+    if (hydrated && state.services.length === 0) router.replace('/book')
+  }, [hydrated, state.services.length, router])
 
   // Generate next 14 days
   const days = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1))
-  const isRecording = state.service?.category === 'recording'
+
+  const hasHourly = state.services.some(s => s.service.billing_unit === 'hour')
+  const nonHourlyServices = state.services.filter(s => s.service.billing_unit !== 'hour')
 
   const handleContinue = () => {
     if (!selectedDate || !selectedTime) return
-    setSchedule({
-      sessionDate: selectedDate,
-      startTime: selectedTime,
-      durationHours: duration,
-    })
+    setSchedule(
+      { sessionDate: selectedDate, startTime: selectedTime, durationHours: duration },
+      quantities,
+    )
     router.push('/book/review')
   }
 
   const canContinue = selectedDate && selectedTime
+
+  const updateQuantity = (serviceId: string, delta: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [serviceId]: Math.max(1, Math.min(50, (prev[serviceId] ?? 1) + delta)),
+    }))
+  }
 
   return (
     <div>
@@ -129,14 +144,14 @@ export default function BookStep3() {
           </div>
         </div>
 
-        {/* Duration (only for hourly) */}
-        {isRecording && (
+        {/* Duration (only for hourly / recording services) */}
+        {hasHourly && (
           <div className="mb-8">
-            <p className="text-sm font-medium text-white/70 mb-3">Duration</p>
+            <p className="text-sm font-medium text-white/70 mb-3">Session Duration</p>
             <div className="glass rounded-xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-2 text-white/60">
                 <Clock size={16} />
-                <span className="text-sm">Session hours</span>
+                <span className="text-sm">Hours</span>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -159,7 +174,46 @@ export default function BookStep3() {
           </div>
         )}
 
-        <div className="flex gap-3">
+        {/* Track / project quantity pickers for non-hourly services */}
+        {nonHourlyServices.map(({ service }) => {
+          const isTrack = service.billing_unit === 'track'
+          const qty = quantities[service.id] ?? 1
+          const Icon = isTrack ? SlidersHorizontal : Music
+          const label = isTrack ? 'Tracks' : 'Projects'
+
+          return (
+            <div key={service.id} className="mb-4">
+              <p className="text-sm font-medium text-white/70 mb-3">
+                {service.name} — Number of {label}
+              </p>
+              <div className="glass rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-white/60">
+                  <Icon size={16} />
+                  <span className="text-sm">{label}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(service.id, -1)}
+                    className="w-8 h-8 rounded-lg glass hover:border-purple-500/40 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="text-lg font-bold text-white w-6 text-center">{qty}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(service.id, 1)}
+                    className="w-8 h-8 rounded-lg glass hover:border-purple-500/40 flex items-center justify-center text-white/60 hover:text-white transition-all"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+
+        <div className="flex gap-3 mt-8">
           <Button type="button" variant="ghost" onClick={goBack}>
             <ArrowLeft size={14} />
             Back

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Calendar, FolderOpen, Users, Star,
-  Settings, LogOut, Shield, Bell,
+  Settings, LogOut, Shield, Bell, ImageIcon, Inbox,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { createClient } from '@/lib/supabase/client'
@@ -13,16 +13,19 @@ const navItems = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard, exact: true },
   { label: 'Bookings', href: '/admin/bookings', icon: Calendar },
   { label: 'Projects', href: '/admin/projects', icon: FolderOpen },
+  { label: 'Portfolio', href: '/admin/portfolio', icon: ImageIcon },
   { label: 'Clients', href: '/admin/clients', icon: Users },
   { label: 'Talents', href: '/admin/talents', icon: Star },
+  { label: 'Messages', href: '/admin/messages', icon: Inbox },
   { label: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 interface AdminSidebarProps {
   pendingPayments?: number
+  unreadMessages?: number
 }
 
-export function AdminSidebar({ pendingPayments = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -37,8 +40,8 @@ export function AdminSidebar({ pendingPayments = 0 }: AdminSidebarProps) {
     <aside className="w-60 flex-shrink-0 flex flex-col h-full border-r border-white/8 bg-brand-black-2">
       {/* Brand + Bell */}
       <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center group-hover:bg-purple-500 transition-colors">
             <span className="text-white font-black text-xs">B</span>
           </div>
           <div>
@@ -48,7 +51,7 @@ export function AdminSidebar({ pendingPayments = 0 }: AdminSidebarProps) {
               <span className="text-[9px] text-amber-400 font-semibold uppercase tracking-wider">Admin</span>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Notification Bell */}
         <Link
@@ -86,10 +89,14 @@ export function AdminSidebar({ pendingPayments = 0 }: AdminSidebarProps) {
             >
               <Icon size={16} className={isActive ? 'text-purple-400' : ''} />
               {label}
-              {/* Show badge on Bookings nav if pending payments */}
               {label === 'Bookings' && pendingPayments > 0 && (
                 <span className="ml-auto text-[10px] font-bold text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full">
                   {pendingPayments}
+                </span>
+              )}
+              {label === 'Messages' && unreadMessages > 0 && (
+                <span className="ml-auto text-[10px] font-bold text-purple-300 bg-purple-500/15 px-1.5 py-0.5 rounded-full">
+                  {unreadMessages}
                 </span>
               )}
             </Link>

@@ -15,12 +15,21 @@ const STEPS = ['Service', 'Details', 'Schedule', 'Review']
 
 export default function BookStep4() {
   const router = useRouter()
-  const { state, hydrated, totalPrice, goBack, reset } = useBooking()
+  const { state, hydrated, totalPrice, goBack } = useBooking()
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (hydrated && (!state.service || !state.projectTitle)) router.replace('/book')
-  }, [hydrated, state.service, state.projectTitle, router])
+    if (hydrated && (state.services.length === 0 || !state.projectTitle)) router.replace('/book')
+  }, [hydrated, state.services.length, state.projectTitle, router])
+
+  // Build a human-readable services summary
+  const servicesText = state.services
+    .map(({ service, quantity }) => {
+      if (service.billing_unit === 'hour') return service.name
+      const unit = service.billing_unit === 'track' ? 'track' : 'project'
+      return `${service.name} (${quantity} ${unit}${quantity !== 1 ? 's' : ''})`
+    })
+    .join(', ')
 
   const handleConfirm = async () => {
     setLoading(true)
@@ -33,14 +42,21 @@ export default function BookStep4() {
         return
       }
 
+      const primaryService = state.services[0]
+
+      // Prepend services list to notes when multiple services are selected
+      const servicePrefix = state.services.length > 1
+        ? `Services: ${servicesText}\n\n`
+        : ''
+
       const { data, error } = await supabase
         .from('bookings')
         .insert({
           client_id: user.id,
-          service_id: state.service!.id,
+          service_id: primaryService.service.id,
           talent_id: state.talentId || null,
           project_title: state.projectTitle,
-          project_notes: state.projectNotes || null,
+          project_notes: (servicePrefix + (state.projectNotes || '')).trim() || null,
           session_date: state.sessionDate,
           start_time: state.startTime,
           duration_hours: state.durationHours,
@@ -53,7 +69,7 @@ export default function BookStep4() {
 
       if (error) throw error
 
-      // Send confirmation email (non-blocking — don't fail booking if email fails)
+      // Send confirmation email (non-blocking)
       try {
         const { data: { user: authUser } } = await supabase.auth.getUser()
         const { data: profile } = await supabase
@@ -70,7 +86,7 @@ export default function BookStep4() {
             bookingId: data.id,
             clientEmail: authUser?.email,
             clientName: profile?.full_name,
-            serviceName: state.service?.name,
+            serviceName: servicesText,
             sessionDate: state.sessionDate,
             startTime: state.startTime,
             totalPrice: totalPrice,
@@ -89,7 +105,7 @@ export default function BookStep4() {
     }
   }
 
-  if (!state.service) return null
+  if (!state.services.length) return null
 
   return (
     <div>
@@ -121,53 +137,80 @@ export default function BookStep4() {
         <p className="text-white/50 mb-8">Double-check your booking before confirming.</p>
 
         <div className="glass rounded-2xl overflow-hidden mb-6">
-          {/* Summary rows */}
-          {[
-            {
-              icon: FileText,
-              label: 'Service',
-              value: state.service.name,
-            },
-            {
-              icon: FileText,
-              label: 'Project',
-              value: state.projectTitle,
-            },
-            ...(state.sessionDate
-              ? [{
-                  icon: Calendar,
-                  label: 'Date',
-                  value: format(new Date(state.sessionDate), 'EEEE, MMMM d, yyyy'),
-                }]
-              : []),
-            ...(state.startTime
-              ? [{
-                  icon: Clock,
-                  label: 'Time',
-                  value: `${state.startTime}${state.durationHours > 1 ? ` · ${state.durationHours} hours` : ''}`,
-                }]
-              : []),
-            ...(state.talentId
-              ? [{
-                  icon: User,
-                  label: 'Talent',
-                  value: 'Selected producer',
-                }]
-              : []),
-          ].map(({ icon: Icon, label, value }, i) => (
-            <div
-              key={label}
-              className={`flex items-start gap-4 px-6 py-4 ${i > 0 ? 'border-t border-white/8' : ''}`}
-            >
+          {/* Services rows */}
+          {state.services.map(({ service, quantity }, i) => {
+            const qtyLabel = service.billing_unit === 'hour'
+              ? `${state.durationHours} hr session`
+              : `${quantity} ${service.billing_unit}${quantity !== 1 ? 's' : ''}`
+
+            return (
+              <div
+                key={service.id}
+                className={`flex items-start gap-4 px-6 py-4 ${i > 0 ? 'border-t border-white/8' : ''}`}
+              >
+                <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
+                  <FileText size={15} />
+                </div>
+                <div>
+                  <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">Service</p>
+                  <p className="text-sm font-medium text-white">{service.name}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{qtyLabel}</p>
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Project */}
+          <div className="flex items-start gap-4 px-6 py-4 border-t border-white/8">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
+              <FileText size={15} />
+            </div>
+            <div>
+              <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">Project</p>
+              <p className="text-sm font-medium text-white">{state.projectTitle}</p>
+            </div>
+          </div>
+
+          {/* Date */}
+          {state.sessionDate && (
+            <div className="flex items-start gap-4 px-6 py-4 border-t border-white/8">
               <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
-                <Icon size={15} />
+                <Calendar size={15} />
               </div>
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">{label}</p>
-                <p className="text-sm font-medium text-white">{value}</p>
+                <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">Date</p>
+                <p className="text-sm font-medium text-white">
+                  {format(new Date(state.sessionDate), 'EEEE, MMMM d, yyyy')}
+                </p>
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Time */}
+          {state.startTime && (
+            <div className="flex items-start gap-4 px-6 py-4 border-t border-white/8">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
+                <Clock size={15} />
+              </div>
+              <div>
+                <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">Time</p>
+                <p className="text-sm font-medium text-white">{state.startTime}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Talent */}
+          {state.talentId && (
+            <div className="flex items-start gap-4 px-6 py-4 border-t border-white/8">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400 flex-shrink-0 mt-0.5">
+                <User size={15} />
+              </div>
+              <div>
+                <p className="text-xs text-white/40 uppercase tracking-wide mb-0.5">Talent</p>
+                <p className="text-sm font-medium text-white">Selected producer</p>
+              </div>
+            </div>
+          )}
 
           {/* Total */}
           <div className="bg-purple-500/8 border-t border-purple-500/20 px-6 py-5 flex items-center justify-between">

@@ -57,10 +57,10 @@ export default function ContactPage() {
 
             <div className="space-y-5">
               {[
-                { icon: Mail, label: 'Email', value: 'info@blackdotmusic.com', href: 'mailto:info@blackdotmusic.com' },
-                { icon: Phone, label: 'WhatsApp', value: '+255 700 000 000', href: 'https://wa.me/255700000000' },
+                { icon: Mail, label: 'Email', value: 'bookings@theblackdotmusic.com', href: 'mailto:bookings@theblackdotmusic.com' },
+                { icon: Phone, label: 'WhatsApp', value: '+255 766 942 121', href: 'https://wa.me/255766942121' },
                 { icon: MapPin, label: 'Location', value: 'Dar es Salaam, Tanzania', href: null },
-                { icon: MessageSquare, label: 'Instagram', value: '@blackdotmusic', href: 'https://instagram.com' },
+                { icon: MessageSquare, label: 'Instagram', value: '@blackdot_tz', href: 'https://www.instagram.com/blackdot_tz?igsh=MTBieG5oa3hydXN5YQ==' },
               ].map(({ icon: Icon, label, value, href }) => (
                 <div key={label} className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-xl glass flex items-center justify-center text-purple-400 flex-shrink-0">
