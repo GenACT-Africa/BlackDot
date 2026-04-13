@@ -4,7 +4,6 @@
       "Bash(npm install:*)",
       "Bash(npx tsc:*)",
       "Bash(npx next:*)",
-      "Bash(curl -s -X POST https://buokafrkkcmdhrjxtvha.supabase.co/rest/v1/rpc/exec_sql -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b2thZnJra2NtZGhyanh0dmhhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI0NDg5MCwiZXhwIjoyMDkwODIwODkwfQ.OlxDkEkyrfZ7PinTfX6gmacx2aYqMQL0FLNMVdg2H-c' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1b2thZnJra2NtZGhyanh0dmhhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI0NDg5MCwiZXhwIjoyMDkwODIwODkwfQ.OlxDkEkyrfZ7PinTfX6gmacx2aYqMQL0FLNMVdg2H-c' -H 'Content-Type: application/json' -d '{\"query\":\"UPDATE public.talents SET display_order = CASE name WHEN '\\\\''Gachi B'\\\\'' THEN 1 WHEN '\\\\''Sign Beats'\\\\'' THEN 2 WHEN '\\\\''Mighty Jones'\\\\'' THEN 3 WHEN '\\\\''Saiko Midundo'\\\\'' THEN 4 END WHERE name IN \\('\\\\''Gachi B'\\\\'','\\\\''Sign Beats'\\\\'','\\\\''Mighty Jones'\\\\'','\\\\''Saiko Midundo'\\\\''\\)\"}')",
       "Bash(grep -r \"resend\\\\|RESEND\" .env.example)",
       "Bash(grep -r \"RESEND\" src/ --include=\"*.ts\" --include=\"*.tsx\" -l)",
       "Bash(supabase --version)",
