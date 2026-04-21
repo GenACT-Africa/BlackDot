@@ -58,11 +58,147 @@ export async function POST(req: NextRequest) {
 
     const confirmPaymentUrl = `${APP_URL}/dashboard/payments/confirm?ref=${bookingRef}&booking_id=${bookingId}`
 
-    const { error } = await resend.emails.send({
-      from: 'BlackDot Music <bookings@theblackdotmusic.com>',
-      to: clientEmail,
-      subject: `Booking Confirmed – ${bookingRef} | Payment Required`,
-      html: `
+    const adminNotificationHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin:0;padding:0;background-color:#080808;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#080808;padding:40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+                <!-- Header -->
+                <tr>
+                  <td style="padding-bottom:32px;" align="center">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="background-color:#7C3AED;border-radius:12px;padding:10px 14px;">
+                          <span style="color:#ffffff;font-weight:900;font-size:18px;">B</span>
+                        </td>
+                        <td style="padding-left:12px;">
+                          <span style="color:#ffffff;font-weight:700;font-size:18px;">BlackDot Music</span>
+                          <span style="display:block;color:rgba(255,255,255,0.4);font-size:12px;">Admin Notification</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Alert badge -->
+                <tr>
+                  <td align="center" style="padding-bottom:16px;">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="background-color:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.3);border-radius:100px;padding:6px 18px;">
+                          <span style="color:#fbbf24;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;">New Booking Request</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Title -->
+                <tr>
+                  <td align="center" style="padding-bottom:8px;">
+                    <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:900;">Action Required</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-bottom:32px;">
+                    <p style="margin:0;color:rgba(255,255,255,0.5);font-size:15px;">A new booking has been submitted and is awaiting your confirmation.</p>
+                  </td>
+                </tr>
+
+                <!-- Booking Ref -->
+                <tr>
+                  <td align="center" style="padding-bottom:32px;">
+                    <table cellpadding="0" cellspacing="0" style="background-color:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);border-radius:12px;padding:16px 32px;">
+                      <tr>
+                        <td align="center">
+                          <p style="margin:0 0 4px 0;color:#a78bfa;font-size:11px;text-transform:uppercase;letter-spacing:2px;font-weight:600;">Booking Reference</p>
+                          <p style="margin:0;color:#ffffff;font-size:24px;font-weight:900;letter-spacing:4px;font-family:monospace;">${bookingRef}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Booking Details -->
+                <tr>
+                  <td style="padding-bottom:32px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#111111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+                      <tr>
+                        <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                          <p style="margin:0 0 2px 0;color:rgba(255,255,255,0.35);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Client</p>
+                          <p style="margin:0;color:#ffffff;font-size:15px;font-weight:600;">${clientName || 'Unknown'}</p>
+                          <p style="margin:2px 0 0 0;color:rgba(255,255,255,0.4);font-size:13px;">${clientEmail}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                          <p style="margin:0 0 2px 0;color:rgba(255,255,255,0.35);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Service</p>
+                          <p style="margin:0;color:#ffffff;font-size:15px;font-weight:600;">${serviceName}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                          <p style="margin:0 0 2px 0;color:rgba(255,255,255,0.35);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Requested Date</p>
+                          <p style="margin:0;color:#ffffff;font-size:15px;font-weight:600;">${formattedDate}${startTime ? ` at ${startTime}` : ''}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:20px 24px;background-color:rgba(124,58,237,0.08);">
+                          <p style="margin:0 0 2px 0;color:rgba(255,255,255,0.35);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Total Value</p>
+                          <p style="margin:0;color:#a78bfa;font-size:22px;font-weight:900;">${formattedPrice}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- CTA -->
+                <tr>
+                  <td style="padding-bottom:32px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:28px;">
+                      <tr>
+                        <td align="center">
+                          <p style="margin:0 0 6px 0;color:#ffffff;font-size:15px;font-weight:700;">Review &amp; Confirm this Booking</p>
+                          <p style="margin:0 0 24px 0;color:rgba(255,255,255,0.45);font-size:13px;">Log in to the admin dashboard to approve, schedule, or contact the client.</p>
+                          <a href="https://theblackdotmusic.com/admin/bookings"
+                            style="display:inline-block;background-color:#7C3AED;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;padding:14px 40px;border-radius:12px;letter-spacing:0.3px;">
+                            View Booking in Admin →
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td align="center" style="border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">
+                    <p style="margin:0;color:rgba(255,255,255,0.25);font-size:12px;">BlackDot Music · Internal Notification · Do not reply to this email</p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `
+
+    const [{ error }, { error: adminError }] = await Promise.all([
+      resend.emails.send({
+        from: 'BlackDot Music <bookings@theblackdotmusic.com>',
+        to: clientEmail,
+        subject: `Booking Confirmed – ${bookingRef} | Payment Required`,
+        html: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -270,11 +406,23 @@ export async function POST(req: NextRequest) {
         </body>
         </html>
       `,
-    })
+      }),
+      resend.emails.send({
+        from: 'BlackDot Music <bookings@theblackdotmusic.com>',
+        to: 'bookings@theblackdotmusic.com',
+        subject: `🎵 New Booking – ${bookingRef} | Action Required`,
+        html: adminNotificationHtml,
+      }),
+    ])
 
     if (error) {
-      console.error('Resend error:', error)
+      console.error('Client email error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    if (adminError) {
+      console.error('Admin notification email error:', adminError)
+      // Non-fatal — client email succeeded, so the booking is still valid
     }
 
     return NextResponse.json({ success: true })
