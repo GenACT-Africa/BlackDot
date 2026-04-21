@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Calendar, FolderOpen, Users, Star,
-  Settings, LogOut, Shield, Bell, ImageIcon, Inbox,
+  Settings, LogOut, Shield, Bell, ImageIcon, Inbox, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { createClient } from '@/lib/supabase/client'
@@ -23,9 +23,11 @@ const navItems = [
 interface AdminSidebarProps {
   pendingPayments?: number
   unreadMessages?: number
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminSidebarProps) {
+export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0, mobileOpen = false, onMobileClose }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -36,11 +38,11 @@ export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminS
     router.refresh()
   }
 
-  return (
-    <aside className="w-60 flex-shrink-0 flex flex-col h-full border-r border-white/8 bg-brand-black-2">
+  const sidebarContent = (
+    <aside className="w-full flex flex-col h-full border-r border-white/8 bg-brand-black-2">
       {/* Brand + Bell */}
       <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group">
+        <Link href="/" className="flex items-center gap-2.5 group" onClick={onMobileClose}>
           <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center group-hover:bg-purple-500 transition-colors">
             <span className="text-white font-black text-xs">B</span>
           </div>
@@ -53,22 +55,33 @@ export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminS
           </div>
         </Link>
 
-        {/* Notification Bell */}
-        <Link
-          href="/admin/bookings"
-          className="relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/8 transition-colors"
-          title={pendingPayments > 0 ? `${pendingPayments} payment${pendingPayments > 1 ? 's' : ''} awaiting verification` : 'Notifications'}
-        >
-          <Bell
-            size={16}
-            className={pendingPayments > 0 ? 'text-amber-400' : 'text-white/30'}
-          />
-          {pendingPayments > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-amber-500 rounded-full flex items-center justify-center px-1">
-              <span className="text-[9px] font-black text-black leading-none">{pendingPayments > 9 ? '9+' : pendingPayments}</span>
-            </span>
-          )}
-        </Link>
+        <div className="flex items-center gap-1">
+          {/* Notification Bell */}
+          <Link
+            href="/admin/bookings"
+            onClick={onMobileClose}
+            className="relative w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/8 transition-colors"
+            title={pendingPayments > 0 ? `${pendingPayments} payment${pendingPayments > 1 ? 's' : ''} awaiting verification` : 'Notifications'}
+          >
+            <Bell
+              size={16}
+              className={pendingPayments > 0 ? 'text-amber-400' : 'text-white/30'}
+            />
+            {pendingPayments > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 bg-amber-500 rounded-full flex items-center justify-center px-1">
+                <span className="text-[9px] font-black text-black leading-none">{pendingPayments > 9 ? '9+' : pendingPayments}</span>
+              </span>
+            )}
+          </Link>
+
+          {/* Close button — mobile only */}
+          <button
+            onClick={onMobileClose}
+            className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/8 text-white/30 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Nav */}
@@ -80,6 +93,7 @@ export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminS
             <Link
               key={href}
               href={href}
+              onClick={onMobileClose}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                 isActive
@@ -115,5 +129,27 @@ export function AdminSidebar({ pendingPayments = 0, unreadMessages = 0 }: AdminS
         </button>
       </div>
     </aside>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex w-60 flex-shrink-0 h-full">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+            onClick={onMobileClose}
+          />
+          <div className="fixed inset-y-0 left-0 z-50 w-72 lg:hidden">
+            {sidebarContent}
+          </div>
+        </>
+      )}
+    </>
   )
 }

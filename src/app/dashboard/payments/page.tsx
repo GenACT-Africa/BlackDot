@@ -43,38 +43,40 @@ export default async function PaymentsPage() {
         </div>
       ) : (
         <div className="glass rounded-2xl overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/8">
-                {['Date', 'Amount', 'Method', 'Reference', 'Status'].map((h) => (
-                  <th key={h} className="text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(payments as Payment[]).map((payment) => (
-                <tr key={payment.id} className="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors">
-                  <td className="px-5 py-4 text-sm text-white/60">
-                    {format(new Date(payment.created_at), 'MMM d, yyyy')}
-                  </td>
-                  <td className="px-5 py-4 text-sm font-semibold text-white">
-                    {formatTZS(payment.amount_tzs)}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-white/60 capitalize">
-                    {payment.payment_method || '—'}
-                  </td>
-                  <td className="px-5 py-4 text-xs font-mono text-purple-400">
-                    {payment.gateway_ref || '—'}
-                  </td>
-                  <td className="px-5 py-4">
-                    <PaymentStatusBadge status={payment.status} />
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px]">
+              <thead>
+                <tr className="border-b border-white/8">
+                  <th className="text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">Date</th>
+                  <th className="text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">Amount</th>
+                  <th className="hidden sm:table-cell text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">Method</th>
+                  <th className="hidden md:table-cell text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">Reference</th>
+                  <th className="text-left text-xs font-semibold text-white/40 uppercase tracking-wider px-5 py-4">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {(payments as Payment[]).map((payment) => (
+                  <tr key={payment.id} className="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors">
+                    <td className="px-5 py-4 text-sm text-white/60 whitespace-nowrap">
+                      {format(new Date(payment.created_at), 'MMM d, yyyy')}
+                    </td>
+                    <td className="px-5 py-4 text-sm font-semibold text-white whitespace-nowrap">
+                      {formatTZS(payment.amount_tzs)}
+                    </td>
+                    <td className="hidden sm:table-cell px-5 py-4 text-sm text-white/60 capitalize">
+                      {payment.payment_method || '—'}
+                    </td>
+                    <td className="hidden md:table-cell px-5 py-4 text-xs font-mono text-purple-400">
+                      {payment.gateway_ref || '—'}
+                    </td>
+                    <td className="px-5 py-4">
+                      <PaymentStatusBadge status={payment.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

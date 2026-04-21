@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef, useEffect } from 'react'
-import { Mail, Phone, Archive, ArchiveRestore, Send, Reply, Inbox, AlertCircle, Loader2 } from 'lucide-react'
+import { Mail, Phone, Archive, ArchiveRestore, Send, Reply, Inbox, AlertCircle, Loader2, ArrowLeft } from 'lucide-react'
 import { format, isToday, isThisWeek } from 'date-fns'
 import { cn } from '@/lib/utils/cn'
 import { markAsRead, toggleArchive, sendReply } from './actions'
@@ -54,6 +54,7 @@ export function InboxClient({ initialMessages }: { initialMessages: ContactMessa
   )
   const [filter, setFilter] = useState<Filter>('inbox')
   const [replyText, setReplyText] = useState('')
+  const [mobileView, setMobileView] = useState<'list' | 'detail'>('list')
   const [replyStatus, setReplyStatus] = useState<'idle' | 'sending' | 'error'>('idle')
   const [replyError, setReplyError] = useState<string | null>(null)
   const [, startTransition] = useTransition()
@@ -79,6 +80,7 @@ export function InboxClient({ initialMessages }: { initialMessages: ContactMessa
     setReplyText('')
     setReplyStatus('idle')
     setReplyError(null)
+    setMobileView('detail')
     if (!msg.read) {
       setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, read: true } : m))
       startTransition(() => markAsRead(msg.id))
@@ -133,7 +135,7 @@ export function InboxClient({ initialMessages }: { initialMessages: ContactMessa
   }
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 7rem)' }}>
+    <div className="flex flex-col" style={{ height: 'calc(100dvh - 7rem)' }} suppressHydrationWarning>
       {/* Header */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -175,7 +177,12 @@ export function InboxClient({ initialMessages }: { initialMessages: ContactMessa
       <div className="flex-1 min-h-0 flex gap-4">
 
         {/* ── Left panel: message list ── */}
-        <div className="w-72 flex-shrink-0 glass rounded-2xl overflow-hidden flex flex-col border border-white/6">
+        <div className={cn(
+          'glass rounded-2xl overflow-hidden flex flex-col border border-white/6',
+          // Mobile: full width, hidden when viewing a message detail
+          'w-full lg:w-72 lg:flex-shrink-0',
+          mobileView === 'detail' ? 'hidden lg:flex' : 'flex',
+        )}>
           {filtered.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
               <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center mb-3">
@@ -246,10 +253,22 @@ export function InboxClient({ initialMessages }: { initialMessages: ContactMessa
 
         {/* ── Right panel: message detail + thread ── */}
         {selected ? (
-          <div className="flex-1 min-w-0 glass rounded-2xl flex flex-col overflow-hidden border border-white/6">
+          <div className={cn(
+            'min-w-0 glass rounded-2xl flex flex-col overflow-hidden border border-white/6',
+            'flex-1',
+            mobileView === 'list' ? 'hidden lg:flex' : 'flex',
+          )}>
 
             {/* Message header */}
-            <div className="px-6 py-4 border-b border-white/8 flex-shrink-0">
+            <div className="px-4 lg:px-6 py-4 border-b border-white/8 flex-shrink-0">
+              {/* Mobile back button */}
+              <button
+                onClick={() => setMobileView('list')}
+                className="lg:hidden flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors mb-3"
+              >
+                <ArrowLeft size={14} />
+                Back to inbox
+              </button>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-start gap-3.5 min-w-0">
                   <Avatar name={selected.name} size="lg" />

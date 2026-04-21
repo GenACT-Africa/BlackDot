@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, FolderOpen, Calendar, CreditCard,
-  Settings, LogOut, Music2
+  Settings, LogOut, Music2, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { createClient } from '@/lib/supabase/client'
@@ -21,9 +21,11 @@ const navItems = [
 interface DashboardSidebarProps {
   userName?: string
   userRole?: string
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-export function DashboardSidebar({ userName, userRole }: DashboardSidebarProps) {
+export function DashboardSidebar({ userName, userRole, mobileOpen = false, onMobileClose }: DashboardSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -34,16 +36,23 @@ export function DashboardSidebar({ userName, userRole }: DashboardSidebarProps) 
     router.refresh()
   }
 
-  return (
-    <aside className="w-60 flex-shrink-0 flex flex-col h-full border-r border-white/8 bg-brand-black-2">
+  const sidebarContent = (
+    <aside className="w-full flex flex-col h-full border-r border-white/8 bg-brand-black-2">
       {/* Brand */}
-      <div className="px-6 py-5 border-b border-white/8">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center shadow-glow-purple-sm">
+      <div className="px-6 py-5 border-b border-white/8 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 group" onClick={onMobileClose}>
+          <div className="w-7 h-7 rounded-lg bg-purple-600 flex items-center justify-center shadow-glow-purple-sm group-hover:bg-purple-500 transition-colors">
             <span className="text-white font-black text-xs">B</span>
           </div>
           <span className="font-bold text-sm text-white">BlackDot</span>
         </Link>
+        {/* Close button — mobile only */}
+        <button
+          onClick={onMobileClose}
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/8 text-white/30 hover:text-white transition-colors"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -55,6 +64,7 @@ export function DashboardSidebar({ userName, userRole }: DashboardSidebarProps) 
             <Link
               key={href}
               href={href}
+              onClick={onMobileClose}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                 isActive
@@ -71,7 +81,11 @@ export function DashboardSidebar({ userName, userRole }: DashboardSidebarProps) 
 
       {/* User + logout */}
       <div className="px-3 py-4 border-t border-white/8 space-y-1">
-        <Link href="/book" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-all">
+        <Link
+          href="/book"
+          onClick={onMobileClose}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-purple-400 hover:bg-purple-500/10 transition-all"
+        >
           <Music2 size={16} />
           New Booking
         </Link>
@@ -92,5 +106,27 @@ export function DashboardSidebar({ userName, userRole }: DashboardSidebarProps) 
         </div>
       </div>
     </aside>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:flex w-60 flex-shrink-0 h-full">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+            onClick={onMobileClose}
+          />
+          <div className="fixed inset-y-0 left-0 z-50 w-72 lg:hidden">
+            {sidebarContent}
+          </div>
+        </>
+      )}
+    </>
   )
 }
