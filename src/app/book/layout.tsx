@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Book a Session',
+  description: 'Book a professional recording session at BlackDot Music in minutes. Choose your services, pick a date, and start your project — studio or remote, worldwide.',
+}
+
 import { ArrowLeft } from 'lucide-react'
 
 export default function BookingLayout({ children }: { children: React.ReactNode }) {

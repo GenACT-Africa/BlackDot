@@ -6,8 +6,8 @@ import { formatTZS } from '@/lib/utils/currency'
 import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Recording, mixing, mastering, and beats production. Premium studio services with world-class quality.',
+  title: 'Studio Services – Recording, Mixing & Beats Production',
+  description: 'Recording studio services in Dar es Salaam: in-person recording, remote sessions, custom beats, mixing & mastering. International quality, transparent pricing.',
 }
 
 const ICONS: Record<string, React.ReactNode> = {

@@ -90,7 +90,7 @@ export function ProjectsClient({ projects }: Props) {
         <div className="absolute inset-0 bg-hero-glow pointer-events-none opacity-40" />
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-widest text-purple-400 mb-4">Portfolio</p>
-          <h1 className="text-5xl sm:text-6xl font-black text-white mb-5">Our Work</h1>
+          <h1 className="text-5xl sm:text-6xl font-black text-white mb-5">Our Studio Portfolio</h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
             A selection of productions, mixes, and sessions from the BlackDot catalog.
           </p>

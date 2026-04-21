@@ -1,4 +1,12 @@
+import type { Metadata } from 'next'
 import { HeroSection } from '@/components/marketing/hero-section'
+
+export const metadata: Metadata = {
+  title: { absolute: 'BlackDot Music | World-Class Recording Studio in Dar es Salaam' },
+  description: "East Africa's premier recording studio in Dar es Salaam. Professional recording, mixing, mastering & beats production — in-studio sessions or remote worldwide.",
+}
+
+
 import { StatsBar } from '@/components/marketing/stats-bar'
 import { ServicesGrid } from '@/components/marketing/services-grid'
 import { HowItWorks } from '@/components/marketing/how-it-works'

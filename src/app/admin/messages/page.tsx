@@ -1,6 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { InboxClient } from './inbox-client'
 import type { ContactMessage } from './inbox-client'
+
+export const metadata: Metadata = {
+  title: 'Message Inbox – Admin',
+  description: 'Read, reply to, and archive client inquiries in the BlackDot Music admin message inbox — track conversation threads and manage unread messages efficiently.',
+}
+
 
 export default async function AdminMessagesPage() {
   const supabase = await createClient()

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | BlackDot Music',
   },
   description:
-    'Create world-class music from anywhere. Premium recording, mixing, mastering and beats production in Dar es Salaam with global reach.',
+    "BlackDot Music is Dar es Salaam's premier recording studio. Professional recording, mixing, mastering & beats production — in studio or anywhere in the world.",
   keywords: [
     'recording studio Dar es Salaam',
     'remote recording Tanzania',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'BlackDot Music | World-Class Recording Studio',
-    description: 'Create world-class music from anywhere.',
+    description: "BlackDot Music is Dar es Salaam's premier recording studio. Professional recording, mixing, mastering & beats production — in studio or anywhere in the world.",
     siteName: 'BlackDot Music',
     locale: 'en_US',
     type: 'website',
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'BlackDot Music',
-    description: 'Create world-class music from anywhere.',
+    description: "BlackDot Music is Dar es Salaam's premier recording studio — recording, mixing, mastering & beats production worldwide.",
   },
   robots: {
     index: true,

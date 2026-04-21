@@ -4,8 +4,8 @@ import { ArrowRight, MapPin, Globe, Award, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'The story behind BlackDot Music — East Africa\'s premier recording studio.',
+  title: 'About Us – Our Story & Studio',
+  description: "BlackDot Music — East Africa's leading music studio in Dar es Salaam. Built on 10+ years of experience and a mission to give every artist world-class sound.",
 }
 
 export default function AboutPage() {
@@ -20,11 +20,11 @@ export default function AboutPage() {
               Our Story
             </p>
             <h1 className="text-5xl sm:text-6xl font-black text-white mb-6 leading-tight">
-              Built for the
+              East Africa&apos;s
               <br />
-              <span className="gradient-text">New Era</span>
+              <span className="gradient-text">Recording Studio</span>
               <br />
-              of Music.
+              Built for the New Era.
             </h1>
             <p className="text-lg text-white/60 leading-relaxed mb-6">
               BlackDot Music was founded with one vision: to give every artist — regardless of where

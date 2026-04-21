@@ -3,8 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { ProjectsClient } from './projects-client'
 
 export const metadata: Metadata = {
-  title: 'Projects',
-  description: 'Listen to projects produced and engineered at BlackDot Music.',
+  title: 'Portfolio – Productions & Studio Work',
+  description: 'Browse the BlackDot Music studio portfolio — productions, mixes & recording sessions spanning Afrobeats, Bongo Flava, R&B and more from artists across the globe.',
 }
 
 export default async function ProjectsPage() {

@@ -1,5 +1,12 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Calendar, Plus } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'My Bookings',
+  description: 'View and manage all your BlackDot Music studio bookings. Track booking status, session dates, services selected, and total pricing from your personal dashboard.',
+}
+
+import { Calendar, Plus, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
 import { BookingStatusBadge } from '@/components/ui/badge'
@@ -89,18 +96,18 @@ export default async function BookingsPage() {
               {bookings.map((booking) => (
                 <tr
                   key={booking.id}
-                  className="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors"
+                  className="border-b border-white/5 last:border-0 hover:bg-white/3 transition-colors group"
                 >
                   <td className="px-5 py-4">
-                    <span className="text-xs font-mono text-purple-400">
+                    <Link href={`/dashboard/bookings/${booking.id}`} className="text-xs font-mono text-purple-400 group-hover:text-purple-300 transition-colors">
                       {booking.booking_ref || '—'}
-                    </span>
+                    </Link>
                   </td>
 
                   <td className="px-5 py-4">
-                    <p className="text-sm font-medium text-white">
+                    <Link href={`/dashboard/bookings/${booking.id}`} className="block text-sm font-medium text-white group-hover:text-purple-300 transition-colors">
                       {booking.project_title || 'Untitled'}
-                    </p>
+                    </Link>
                   </td>
 
                   <td className="px-5 py-4">
@@ -127,9 +134,12 @@ export default async function BookingsPage() {
                   </td>
 
                   <td className="px-5 py-4">
-                    <BookingStatusBadge
-                      status={booking.status || 'pending'}
-                    />
+                    <div className="flex items-center justify-between gap-2">
+                      <BookingStatusBadge
+                        status={booking.status || 'pending'}
+                      />
+                      <ArrowRight size={13} className="text-white/20 group-hover:text-purple-400 transition-colors flex-shrink-0" />
+                    </div>
                   </td>
                 </tr>
               ))}

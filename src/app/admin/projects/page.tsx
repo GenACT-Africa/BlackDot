@@ -1,6 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { ProjectStatusBadge } from '@/components/ui/badge'
 import { AdminProjectRow } from './project-row'
+
+export const metadata: Metadata = {
+  title: 'Manage Projects – Admin',
+  description: 'Manage all BlackDot Music client projects — update progress, change delivery status, and track milestones for every active production from the admin panel.',
+}
+
 
 export default async function AdminProjectsPage() {
   const supabase = await createClient()

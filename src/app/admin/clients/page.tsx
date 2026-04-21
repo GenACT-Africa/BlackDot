@@ -1,7 +1,14 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { Users } from 'lucide-react'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
+
+export const metadata: Metadata = {
+  title: 'Clients – Admin',
+  description: 'View all registered BlackDot Music client accounts — browse profiles, check booking history, and monitor activity across the platform from the admin panel.',
+}
+
 
 export default async function AdminClientsPage() {
   const supabase = await createClient()

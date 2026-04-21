@@ -1,5 +1,12 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { AdminBookingRow } from './booking-row'
+
+export const metadata: Metadata = {
+  title: 'Manage Bookings – Admin',
+  description: 'Review and manage all BlackDot Music studio booking requests — approve, update, or cancel sessions and track client booking status from the admin panel.',
+}
+
 
 export default async function AdminBookingsPage() {
   const supabase = await createClient()

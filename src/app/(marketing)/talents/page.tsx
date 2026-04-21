@@ -7,8 +7,8 @@ import { TalentCard } from './talent-card'
 import type { Talent } from '@/types'
 
 export const metadata: Metadata = {
-  title: 'Talents',
-  description: 'Meet the producers, engineers and songwriters behind BlackDot Music.',
+  title: 'Producers & Creators – Meet the Team',
+  description: "Meet BlackDot Music's team of world-class music producers, sound engineers, and songwriters in Tanzania — the creative force behind East African and global hits.",
 }
 
 export default async function TalentsPage() {
@@ -32,7 +32,7 @@ export default async function TalentsPage() {
         <div className="relative">
           <p className="text-xs font-semibold uppercase tracking-widest text-purple-400 mb-4">The Team</p>
           <h1 className="text-5xl sm:text-6xl font-black text-white mb-5">
-            Producers & Creators
+            Music Producers &amp; Creators
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
             The talent behind your sound — each one handpicked for their craft, versatility, and vision.

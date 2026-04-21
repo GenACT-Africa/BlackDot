@@ -50,7 +50,8 @@ export default function ContactPage() {
           {/* Left */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-purple-400 mb-4">Get in Touch</p>
-            <h1 className="text-5xl font-black text-white mb-6">Let&apos;s Talk.</h1>
+            <h1 className="text-5xl font-black text-white mb-3">Contact BlackDot Music</h1>
+            <p className="text-2xl font-black gradient-text mb-6">Let&apos;s Talk.</p>
             <p className="text-white/50 text-lg mb-10 leading-relaxed">
               Have a project in mind? Want to discuss a custom package? Reach out — we reply fast.
             </p>

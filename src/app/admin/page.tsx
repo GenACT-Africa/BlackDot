@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import { Calendar, FolderOpen, Users, TrendingUp } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard',
+  description: 'BlackDot Music admin overview — monitor bookings, active projects, client accounts, and revenue metrics from a single real-time admin dashboard.',
+}
+
 import { createClient } from '@/lib/supabase/server'
 import { StatCard } from '@/components/ui/card'
 import { BookingStatusBadge, ProjectStatusBadge } from '@/components/ui/badge'

@@ -1,8 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plus, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'
+
+export const metadata: Metadata = {
+  title: 'Manage Talents – Admin',
+  description: 'Manage BlackDot Music talent profiles — add new producers, update bios, roles and genres, manage social links, and control which profiles are publicly visible.',
+}
+
 import { Badge } from '@/components/ui/badge'
 import type { Talent } from '@/types'
 

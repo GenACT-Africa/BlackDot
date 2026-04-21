@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'My Projects',
+  description: 'Track the progress of all your BlackDot Music studio projects. See production stages, completion percentages, and delivery status for every recording session.',
+}
+
 import { Plus, FolderOpen, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Button } from '@/components/ui/button'

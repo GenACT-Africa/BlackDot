@@ -1,4 +1,11 @@
+import type { Metadata } from 'next'
 import { CreditCard } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Payments',
+  description: 'Review your complete BlackDot Music payment history. See paid and pending amounts, payment methods, and transaction references for all your studio sessions.',
+}
+
 import { createClient } from '@/lib/supabase/server'
 import { PaymentStatusBadge } from '@/components/ui/badge'
 import { formatTZS } from '@/lib/utils/currency'
