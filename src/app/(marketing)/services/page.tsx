@@ -115,7 +115,7 @@ export default function ServicesPage() {
                   <p className="text-4xl font-black gradient-text mb-1">
                     {formatTZS(service.price_tzs)}
                   </p>
-                  <p className="text-sm text-white/40 mb-6">
+                  <p className="text-sm text-white/60 mb-6">
                     per {service.billing_unit}
                   </p>
                   <Link href={`/book?service=${service.slug}`}>
@@ -124,7 +124,7 @@ export default function ServicesPage() {
                       <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </Link>
-                  <p className="text-xs text-white/30 mt-3">
+                  <p className="text-xs text-white/50 mt-3">
                     Payment after confirmation
                   </p>
                 </div>

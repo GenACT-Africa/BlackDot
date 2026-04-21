@@ -109,19 +109,25 @@ export function Testimonials({ testimonials = PLACEHOLDER_TESTIMONIALS }: Testim
         <div className="flex items-center justify-center gap-4 mt-8">
           <button
             onClick={prev}
-            className="w-10 h-10 flex items-center justify-center rounded-xl glass hover:border-purple-500/40 text-white/50 hover:text-white transition-all"
+            aria-label="Previous testimonial"
+            className="w-11 h-11 flex items-center justify-center rounded-xl glass hover:border-purple-500/40 text-white/60 hover:text-white transition-all"
           >
             <ChevronLeft size={18} />
           </button>
 
           {/* Dots */}
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2" role="tablist" aria-label="Testimonial navigation">
             {items.map((_, i) => (
               <button
                 key={i}
+                role="tab"
+                aria-selected={i === current}
+                aria-label={`Go to testimonial ${i + 1}`}
                 onClick={() => setCurrent(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === current ? 'w-6 bg-purple-500' : 'w-1.5 bg-white/20'
+                className={`rounded-full transition-all duration-300 ${
+                  i === current
+                    ? 'w-6 h-2 bg-purple-500'
+                    : 'w-2 h-2 bg-white/30 hover:bg-white/50'
                 }`}
               />
             ))}
@@ -129,7 +135,8 @@ export function Testimonials({ testimonials = PLACEHOLDER_TESTIMONIALS }: Testim
 
           <button
             onClick={next}
-            className="w-10 h-10 flex items-center justify-center rounded-xl glass hover:border-purple-500/40 text-white/50 hover:text-white transition-all"
+            aria-label="Next testimonial"
+            className="w-11 h-11 flex items-center justify-center rounded-xl glass hover:border-purple-500/40 text-white/60 hover:text-white transition-all"
           >
             <ChevronRight size={18} />
           </button>

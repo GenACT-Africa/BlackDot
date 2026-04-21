@@ -108,7 +108,7 @@ export default async function TalentProfilePage({ params }: Props) {
                 </a>
               )}
               {!talent.instagram_url && !talent.spotify_url && !talent.youtube_url && (
-                <p className="text-xs text-white/30">No links added yet.</p>
+                <p className="text-xs text-white/50">No links added yet.</p>
               )}
             </div>
           </div>

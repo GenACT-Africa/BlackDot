@@ -165,15 +165,17 @@ export function ProjectsClient({ projects }: Props) {
             {/* Display count — only when not "see all" */}
             {!showAll && (
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-white/30">Show</span>
+                <span className="text-xs text-white/60">Show</span>
                 {DISPLAY_OPTIONS.map(n => (
                   <button
                     key={n}
                     onClick={() => setDisplayCount(n)}
-                    className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all ${
+                    aria-label={`Show ${n} projects`}
+                    aria-pressed={displayCount === n}
+                    className={`w-9 h-9 rounded-lg text-xs font-semibold transition-all ${
                       displayCount === n
                         ? 'bg-purple-600 text-white'
-                        : 'glass border border-white/10 text-white/40 hover:text-white hover:border-white/20'
+                        : 'glass border border-white/10 text-white/60 hover:text-white hover:border-white/20'
                     }`}
                   >
                     {n}
@@ -183,7 +185,7 @@ export function ProjectsClient({ projects }: Props) {
             )}
 
             {/* Results count */}
-            <span className="text-xs text-white/25">
+            <span className="text-xs text-white/60">
               {filtered.length} track{filtered.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -298,7 +300,7 @@ export function ProjectsClient({ projects }: Props) {
                           <p className="text-xs text-white/60">{project.description}</p>
                         )}
                         {project.key_signature && (
-                          <p className="text-xs text-white/30 mt-1">Prod. {project.key_signature}</p>
+                          <p className="text-xs text-white/50 mt-1">Prod. {project.key_signature}</p>
                         )}
                       </div>
                     </motion.div>

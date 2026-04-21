@@ -49,7 +49,8 @@ export function DashboardSidebar({ userName, userRole, mobileOpen = false, onMob
         {/* Close button — mobile only */}
         <button
           onClick={onMobileClose}
-          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/8 text-white/30 hover:text-white transition-colors"
+          aria-label="Close sidebar"
+          className="lg:hidden w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white/8 text-white/30 hover:text-white transition-colors"
         >
           <X size={16} />
         </button>

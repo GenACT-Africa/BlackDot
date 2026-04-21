@@ -124,7 +124,7 @@ function BookStep1Content() {
               </div>
 
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-sm font-bold text-white">{service.name}</h3>
+                <h2 className="text-sm font-bold text-white">{service.name}</h2>
                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-all ${
                   selected
                     ? 'bg-purple-600 border-purple-600'
