@@ -48,9 +48,36 @@ const FEATURES: Record<string, string[]> = {
   ],
 }
 
+const servicesJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'BlackDot Music Recording Studio Services',
+  description: 'Recording studio services in Dar es Salaam, Tanzania — in-studio recording, remote sessions, beats production, mixing & mastering.',
+  itemListElement: SERVICES.map((s, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Service',
+      name: s.name,
+      description: s.long_desc || s.description,
+      provider: { '@type': 'Organization', name: 'BlackDot Music', url: 'https://www.theblackdotmusic.com' },
+      offers: {
+        '@type': 'Offer',
+        price: s.price_tzs,
+        priceCurrency: 'TZS',
+        url: `https://www.theblackdotmusic.com/book?service=${s.slug}`,
+      },
+      areaServed: s.is_remote
+        ? { '@type': 'Place', name: 'Worldwide' }
+        : { '@type': 'City', name: 'Dar es Salaam' },
+    },
+  })),
+}
+
 export default function ServicesPage() {
   return (
     <div className="min-h-screen bg-brand-black pt-24 pb-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(servicesJsonLd) }} />
       {/* Hero */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-20 text-center">
         <div className="absolute inset-0 bg-hero-glow pointer-events-none opacity-60" />
