@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { Resend } from 'resend'
+import * as postmark from 'postmark'
 
 export type SavedReply = {
   id: string
@@ -40,22 +40,24 @@ export async function sendReply(
   subject: string,
   body: string,
 ): Promise<{ success: boolean; error?: string; reply?: SavedReply }> {
-  const apiKey = process.env.RESEND_API_KEY
+  const apiKey = process.env.POSTMARK_API_KEY
   if (!apiKey) return { success: false, error: 'Email service not configured.' }
 
-  const resend = new Resend(apiKey)
+  const client = new postmark.ServerClient(apiKey)
   const fromAddress = process.env.REPLY_FROM_EMAIL ?? 'BlackDot Music <bookings@theblackdotmusic.com>'
 
   // 1. Send the email
-  const { error: emailError } = await resend.emails.send({
-    from: fromAddress,
-    to: [toEmail],
-    subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
-    text: body,
-    html: `<div style="font-family:sans-serif;font-size:14px;color:#333;line-height:1.6">${body.replace(/\n/g, '<br/>')}</div>`,
-  })
-
-  if (emailError) return { success: false, error: emailError.message }
+  try {
+    await client.sendEmail({
+      From: fromAddress,
+      To: toEmail,
+      Subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
+      TextBody: body,
+      HtmlBody: `<div style="font-family:sans-serif;font-size:14px;color:#333;line-height:1.6">${body.replace(/\n/g, '<br/>')}</div>`,
+    })
+  } catch (err: any) {
+    return { success: false, error: err.message }
+  }
 
   // 2. Persist the reply so it shows in the thread on refresh
   const supabase = await createClient()

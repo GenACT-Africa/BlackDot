@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Resend } from 'resend'
+import * as postmark from 'postmark'
 
 // ─── Payment Details ───────────────────────────────────────────
 // TODO: Replace placeholders with your real payment details
@@ -16,17 +16,17 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
 
-    const apiKey = process.env.RESEND_API_KEY
+    const apiKey = process.env.POSTMARK_API_KEY
 
     if (!apiKey) {
-      console.error('Missing RESEND_API_KEY')
+      console.error('Missing POSTMARK_API_KEY')
       return NextResponse.json(
         { error: 'Server misconfiguration' },
         { status: 500 }
       )
     }
 
-    const resend = new Resend(apiKey)
+    const client = new postmark.ServerClient(apiKey)
 
 
     const {
@@ -193,12 +193,12 @@ export async function POST(req: NextRequest) {
       </html>
     `
 
-    const [{ error }, { error: adminError }] = await Promise.all([
-      resend.emails.send({
-        from: 'BlackDot Music <bookings@theblackdotmusic.com>',
-        to: clientEmail,
-        subject: `Booking Confirmed – ${bookingRef} | Payment Required`,
-        html: `
+    const [clientResult, adminResult] = await Promise.allSettled([
+      client.sendEmail({
+        From: 'BlackDot Music <bookings@theblackdotmusic.com>',
+        To: clientEmail,
+        Subject: `Booking Confirmed – ${bookingRef} | Payment Required`,
+        HtmlBody: `
         <!DOCTYPE html>
         <html>
         <head>
@@ -407,22 +407,22 @@ export async function POST(req: NextRequest) {
         </html>
       `,
       }),
-      resend.emails.send({
-        from: 'BlackDot Music <bookings@theblackdotmusic.com>',
-        to: 'bookings@theblackdotmusic.com',
-        subject: `🎵 New Booking – ${bookingRef} | Action Required`,
-        html: adminNotificationHtml,
+      client.sendEmail({
+        From: 'BlackDot Music <bookings@theblackdotmusic.com>',
+        To: 'bookings@theblackdotmusic.com',
+        Subject: `🎵 New Booking – ${bookingRef} | Action Required`,
+        HtmlBody: adminNotificationHtml,
       }),
     ])
 
-    if (error) {
-      console.error('Client email error:', error)
-      return NextResponse.json({ error: error.message }, { status: 500 })
+    if (clientResult.status === 'rejected') {
+      console.error('Client email error:', clientResult.reason)
+      return NextResponse.json({ error: 'Failed to send confirmation email' }, { status: 500 })
     }
 
-    if (adminError) {
-      console.error('Admin notification email error:', adminError)
-      // Non-fatal — client email succeeded, so the booking is still valid
+    if (adminResult.status === 'rejected') {
+      console.error('Admin notification email error:', adminResult.reason)
+      // Non-fatal — client email succeeded, booking is still valid
     }
 
     return NextResponse.json({ success: true })
